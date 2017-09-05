@@ -351,6 +351,9 @@ if options.anat!='':
 	sl.append("cat_matvec -ONELINE  %s %s %s_al_mat.aff12.1D -I  %s_vrmat.aff12.1D  > %s_wmat.aff12.1D" % (tlrc_opt,oblique_opt,anatprefix,prefix,prefix))
 else: sl.append("cp %s_vrmat.aff12.1D %s_wmat.aff12.1D" % (prefix,prefix))
 
+#Detect if current AFNI has old 3dNwarpApply
+if " -affter aaa  = *** THIS OPTION IS NO LONGER AVAILABLE" in commands.getstatusoutput("3dNwarpApply -help")[1]: old_qwarp = False
+else: old_qwarp = True
 
 # Extended Image Processing
 
@@ -359,8 +362,10 @@ if zeropad_opts!="" : sl.append("3dZeropad %s -prefix _eBvrmask.nii.gz %s_ts+ori
 if options.anat!='':
 	if options.qwarp:
 		sl.append("voxsize=`ccalc $(3dinfo -voxvol _eBvrmask.nii.gz)**.33`") #Set voxel size
-		sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' -affter '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % \
-		(dsprefix(atnsmprage),prefix))
+		if old_qwarp: 
+			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' -affter '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
+		else:
+			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
 		if options.betmask: sl.append("bet _eBvrmask%s eBvrmask%s " % (osf,osf ))
 		else: sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
 		sl.append("3dAutobox -overwrite -prefix eBvrmask%s eBvrmask%s" % (osf,osf) )
