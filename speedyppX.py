@@ -371,8 +371,10 @@ if options.anat!='':
 		else: sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
 		sl.append("3dAutobox -overwrite -prefix eBvrmask%s eBvrmask%s" % (osf,osf) )
 		sl.append("3dcalc -a eBvrmask.nii.gz -expr 'notzero(a)' -overwrite -prefix eBvrmask.nii.gz")
-		sl.append("3dNwarpApply -nwarp './%snl_WARP.nii.gz' -affter %s_wmat.aff12.1D -master eBvrmask.nii.gz -source %s_ts+orig -interp %s -prefix ./%s_vr%s " % \
-			(dsprefix(atnsmprage),prefix,dsin,options.align_interp,dsin,osf) )
+		if old_qwarp:
+			sl.append("3dNwarpApply -nwarp './%snl_WARP.nii.gz' -affter %s_wmat.aff12.1D -master eBvrmask.nii.gz -source %s_ts+orig -interp %s -prefix ./%s_vr%s " % (dsprefix(atnsmprage),prefix,dsin,options.align_interp,dsin,osf) )
+		else:
+			sl.append("3dNwarpApply -nwarp './%snl_WARP.nii.gz' %s_wmat.aff12.1D -master eBvrmask.nii.gz -source %s_ts+orig -interp %s -prefix ./%s_vr%s " % (dsprefix(atnsmprage),prefix,dsin,options.align_interp,dsin,osf) )
 	else:
 		sl.append("3dAllineate -overwrite -final %s -%s -float -1Dmatrix_apply %s_wmat.aff12.1D -base _eBvrmask.nii.gz -input _eBvrmask.nii.gz -prefix ./_eBvrmask.nii.gz" % \
 			(options.align_interp,options.align_interp,prefix))
