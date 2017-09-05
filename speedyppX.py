@@ -21,6 +21,7 @@ from os import system,getcwd,mkdir,chdir,popen
 import os.path
 from string import rstrip,split
 from optparse import OptionParser,OptionGroup
+import commands
 
 #Filename parser for NIFTI and AFNI files
 def dsprefix(idn):
