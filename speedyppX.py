@@ -203,6 +203,9 @@ if options.anat!='':
 		elif options.csftemp=="MNI_caez" or options.csftemp=="mni_caez":
 			tempstr="MNI_caez_N27+tlrc"
 			sl.append("csfstr=MNI_caez_csf_mask%s" % (str(options.csfpeel)))
+		elif options.csftemp=="MNI_EPI" or options.csftemp=="mni_epi":
+			tempstr="MNI_EPI+tlrc"
+			sl.append("csfstr=MNI_EPI_csf_mask%s" % (str(options.csfpeel)))
 		elif options.csftemp=="TT_MNI" or options.csftemp=="tt_mni":
 			tempstr="TT_avg152T1+tlrc"
 			sl.append("csfstr=TT_avg152T1_csf_mask%s" % (str(options.csfpeel)))
