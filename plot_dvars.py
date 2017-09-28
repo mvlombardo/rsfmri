@@ -11,7 +11,7 @@ pdf2save    = filename of pdf to save
 Example usage:
 python plot_dvars.py --dvars_sm rest_sm_dvars.txt
     --dvars_noise rest_noise_dvars.txt --dvars_wds rest_wds_dvars.txt
-    --subid 0051456 --pdf2save fd_plot.pdf
+    --subid 0051456 --pdf2save dvars_plot.pdf
 """
 
 # main function
