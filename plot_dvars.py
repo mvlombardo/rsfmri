@@ -36,6 +36,7 @@ def plot_dvars(pp_fname, noise_fname, wds_fname, subid, fname2save,
     plt.title(subid)
     plt.xlabel('Volume')
     plt.ylabel('DVARS')
+    plt.legend()
     plt.grid(linewidth = gridline_width)
     plt.savefig(fname2save)
 
