@@ -14,11 +14,9 @@ python plot_fd.py motion_fd.txt 0051456 fd_plot.pdf
 
 # main function
 def plot_fd(fname, subid, fname2save, gridline_width = 0.5):
-
-    # import libraries
-    import numpy as np
-    import matplotlib.pyplot as plt
-
+    """
+    Plot framewise displacement.
+    """
     # read in fd file as np.array
     fd = np.loadtxt(fname)
 
@@ -31,11 +29,26 @@ def plot_fd(fname, subid, fname2save, gridline_width = 0.5):
     plt.savefig(fname2save)
 
 
-# grab arguments
-import sys
-fd_file = sys.argv[1]
-subid2use = sys.argv[2]
-pdf2save = sys.argv[3]
+# function to parse input arguments
+def parse_args():
+    """
+    Parse arguments.
+    """
+    parser=OptionParser()
+    parser.add_option('--fd',"",dest='fd_file',help="Framewise displacement text file ex: -fd rest_motion_fd.txt",default='')
+    parser.add_option('--subid',"",dest='subid',help="Subject ID ex: -subid 0051456",default='')
+    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: -0 fd_dvars_plot.pdf",default='')
+    (options,args) = parser.parse_args()
+    return(options)
 
-# call main function
-plot_fd(fd_file, subid2use, pdf2save)
+
+# boilerplate code to call main code for executing
+if __name__ == '__main__':
+
+    # import libraries
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from optparse import OptionParser,OptionGroup
+
+    options = parse_args()
+    plot_fd(options.fd_file, options.subid, options.pdf2save)
