@@ -18,11 +18,9 @@ python plot_dvars.py rest_sm_dvars.txt rest_noise_dvars.txt rest_wds_dvars.txt
 # main function
 def plot_dvars(pp_fname, noise_fname, wds_fname, subid, fname2save,
     gridline_width = 0.5):
-
-    # import libraries
-    import numpy as np
-    import matplotlib.pyplot as plt
-
+    """
+    Plot DVARS.
+    """
     # read in files as np.array
     pp = np.loadtxt(pp_fname)
     noise = np.loadtxt(noise_fname)
@@ -40,14 +38,32 @@ def plot_dvars(pp_fname, noise_fname, wds_fname, subid, fname2save,
     plt.grid(linewidth = gridline_width)
     plt.savefig(fname2save)
 
+# function to parse input arguments
+def parse_args():
+    """
+    Parse arguments.
+    """
+    parser=OptionParser()
+    parser.add_option('--dvars_sm',"",dest='dvars_sm_file',help="DVARS on preprocessed data text file. ex: -dvars_sm rest_sm_dvars.txt ",default='')
+    parser.add_option('--dvars_noise',"",dest='dvars_noise_file',help="DVARS on noise removed from wavelet denoising. ex: -dvars_noise rest_noise_dvars.txt ",default='')
+    parser.add_option('--dvars_wds',"",dest='dvars_wds_file',help="DVARS on wavelet denoised data. ex: -dvars_wds rest_wds_dvars.txt ",default='')
+    parser.add_option('--subid',"",dest='subid',help="Subject ID ex: -subid 0051456",default='')
+    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: -0 fd_dvars_plot.pdf",default='')
+    (options,args) = parser.parse_args()
+    return(options)
 
-# grab arguments
-import sys
-pp_file = sys.argv[1]
-noise_file = sys.argv[2]
-wds_file = sys.argv[3]
-subid2use = sys.argv[4]
-pdf2save = sys.argv[5]
 
-# call main function
-plot_dvars(pp_file, noise_file, wds_file, subid2use, pdf2save)
+# boilerplate code to call main code for executing
+if __name__ == '__main__':
+
+    # import libraries
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from optparse import OptionParser,OptionGroup
+
+    # parse arguments
+    options = parse_args()
+
+    # call main function
+    plot_dvars(options.pp_file, options.noise_file, options.wds_file,
+        options.subid, options.pdf2save)
