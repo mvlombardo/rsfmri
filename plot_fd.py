@@ -2,14 +2,12 @@
 """
 plot_fd.py - plots framewise displacement as pdf plot
 
-python plot_fd.py fd_file subid fname2save
-
-fd_file = filename of fd.txt
-subid = subject id
-fname2save = filename of pdf to save
+fd_file     = filename of fd.txt
+subid       = subject id
+pdf2save    = filename of pdf to save
 
 Example usage:
-python plot_fd.py motion_fd.txt 0051456 fd_plot.pdf
+python plot_fd.py --fd rest_motion_fd.txt --subid 0051456 --pdf2save fd_plot.pdf
 """
 
 # main function
@@ -50,5 +48,8 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from optparse import OptionParser,OptionGroup
 
+    # parse arguments
     options = parse_args()
+
+    # call main function
     plot_fd(options.fd_file, options.subid, options.pdf2save)
