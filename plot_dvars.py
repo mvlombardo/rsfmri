@@ -2,17 +2,16 @@
 """
 plot_dvars.py - plots dvars estimates from preprocessed & wavelet denoised data
 
-python plot_dvars.py dvars_pp_file dvars_wds_file subid fname2save
-
-dvars_pp_file = filename of dvars from preprocessed data
-dvars_noise_file = filename of dvars from noise removed from wavelet denoising
-dvars_wds_file = filename of dvars from wavelet denoised data
-subid = subject id
-fname2save = filename of pdf to save
+dvars_sm    = filename of dvars from preprocessed data
+dvars_noise = filename of dvars from noise removed from wavelet denoising
+dvars_wds   = filename of dvars from wavelet denoised data
+subid       = subject id
+pdf2save    = filename of pdf to save
 
 Example usage:
-python plot_dvars.py rest_sm_dvars.txt rest_noise_dvars.txt rest_wds_dvars.txt
-    0051456 dvars_plot.pdf
+python plot_dvars.py --dvars_sm rest_sm_dvars.txt
+    --dvars_noise rest_noise_dvars.txt --dvars_wds rest_wds_dvars.txt
+    --subid 0051456 --pdf2save fd_plot.pdf
 """
 
 # main function
