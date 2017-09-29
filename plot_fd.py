@@ -33,9 +33,9 @@ def parse_args():
     Parse arguments.
     """
     parser=OptionParser()
-    parser.add_option('--fd',"",dest='fd_file',help="Framewise displacement text file ex: -fd rest_motion_fd.txt",default='')
-    parser.add_option('--subid',"",dest='subid',help="Subject ID ex: -subid 0051456",default='')
-    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: -0 fd_dvars_plot.pdf",default='')
+    parser.add_option('--fd',"",dest='fd_file',help="Framewise displacement text file ex: --fd rest_motion_fd.txt",default='')
+    parser.add_option('--subid',"",dest='subid',help="Subject ID ex: --subid 0051456",default='')
+    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: --pdf2save fd_dvars_plot.pdf",default='')
     (options,args) = parser.parse_args()
     return(options)
 
