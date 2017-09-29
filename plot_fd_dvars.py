@@ -70,7 +70,7 @@ def parse_args():
 # import libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from optparse import OptionParser,OptionGroup
+from optparse import OptionParser
 
 # call main function
 options = parse_args()

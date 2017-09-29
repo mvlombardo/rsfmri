@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # import libraries
     import numpy as np
     import matplotlib.pyplot as plt
-    from optparse import OptionParser,OptionGroup
+    from optparse import OptionParser
 
     # parse arguments
     options = parse_args()
