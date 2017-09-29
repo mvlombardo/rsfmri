@@ -43,11 +43,11 @@ def parse_args():
     Parse arguments.
     """
     parser=OptionParser()
-    parser.add_option('--dvars_sm',"",dest='dvars_sm_file',help="DVARS on preprocessed data text file. ex: -dvars_sm rest_sm_dvars.txt ",default='')
-    parser.add_option('--dvars_noise',"",dest='dvars_noise_file',help="DVARS on noise removed from wavelet denoising. ex: -dvars_noise rest_noise_dvars.txt ",default='')
-    parser.add_option('--dvars_wds',"",dest='dvars_wds_file',help="DVARS on wavelet denoised data. ex: -dvars_wds rest_wds_dvars.txt ",default='')
+    parser.add_option('--dvars_sm',"",dest='dvars_sm_file',help="DVARS on preprocessed data text file. ex: --dvars_sm rest_sm_dvars.txt ",default='')
+    parser.add_option('--dvars_noise',"",dest='dvars_noise_file',help="DVARS on noise removed from wavelet denoising. ex: --dvars_noise rest_noise_dvars.txt ",default='')
+    parser.add_option('--dvars_wds',"",dest='dvars_wds_file',help="DVARS on wavelet denoised data. ex: --dvars_wds rest_wds_dvars.txt ",default='')
     parser.add_option('--subid',"",dest='subid',help="Subject ID ex: -subid 0051456",default='')
-    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: -0 fd_dvars_plot.pdf",default='')
+    parser.add_option('--pdf2save',"",dest='pdf2save',help="PDF filename to save ex: --pdf2save fd_dvars_plot.pdf",default='')
     (options,args) = parser.parse_args()
     return(options)
 
