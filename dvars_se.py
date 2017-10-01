@@ -5,7 +5,7 @@ Compute DVARS on single echo EPI data.
 For usage see:  python dvars_se.py -h
 
 Example usage:
-python dvars_se.py -d rest_pp.nii.gz
+python dvars_se.py -d rest_sm.nii.gz
 """
 
 # import modules
@@ -21,8 +21,8 @@ def parse_args():
     Parse arguments.
     """
     parser=OptionParser()
-    parser.add_option('-d',"",dest='data',help="rest_pp.nii.gz file ex: -d rest_pp.nii.gz",default=None)
-    parser.add_option('-p',"",action="store_true",dest='plot',help="make dvars plot",default=False)
+    parser.add_option('-d',"",dest='data',help="EPI data to compute DVARS on file ex: -d rest_sm.nii.gz",default=None)
+    parser.add_option('-p',"",action="store_true",dest='plot',help="Make DVARS plot",default=False)
     (options,args) = parser.parse_args()
     return(options)
 
