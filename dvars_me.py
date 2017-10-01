@@ -12,6 +12,7 @@ python dvars_me.py --tsoc ts_OC.nii
 # import modules
 import nibabel as nib
 import numpy as np
+import matplotlib.pyplot as plt
 from optparse import OptionParser
 
 
@@ -22,6 +23,7 @@ def parse_args():
     parser=OptionParser()
     parser.add_option('--hik',"",dest='hik',help="hik_ts_OC.nii file ex: --hik hik_ts_OC.nii",default=None)
     parser.add_option('--tsoc',"",dest='tsoc',help="ts_OC.nii file ex: --tsoc ts_OC.nii",default=None)
+    parser.add_option('-p',"",action="store_true",dest='plot',help="Make DVARS plot",default=False)
     (options,args) = parser.parse_args()
     return(options)
 
@@ -56,6 +58,17 @@ def scoreatpercentile(a, per, limit=(), interpolation_method='fraction'):
                              "'lower' or 'higher'")
 
     return score
+
+
+def make_plot(data):
+    """
+    Make DVARS plot
+    """
+    plt.plot(data)
+    plt.xlabel("Frame #")
+    plt.ylabel("DVARS (%x10)")
+    plt.show()
+
 
 
 # boilerplate code to call main code for executing
@@ -107,3 +120,7 @@ if __name__ == '__main__':
     #Threshold differentials with extreme values, compute DVARS
     dvars = np.sqrt(np.mean(dpdt[:,dpdt_mask]**2,1))
     np.savetxt('%s_dvars.txt' % dfn.split('.nii.gz')[0],dvars)
+
+    # make plot
+    if opts.plot:
+        make_plot(dvars)
