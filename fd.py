@@ -26,6 +26,15 @@ def parse_args():
     return(options)
 
 
+def make_plot(data):
+    """
+    Make FD plot
+    """
+    plt.plot(data)
+    plt.xlabel("Frame #")
+    plt.ylabel("Framewise Displacement (mm)")
+    plt.show()
+
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
 
@@ -41,11 +50,8 @@ if __name__ == '__main__':
     fd=np.sum(dmdt,axis=1)
 
     # save fd to text file
-    np.savetxt('%s_fd.txt' % (argv[1].split('.')[0]),fd)
+    np.savetxt('%s_fd.txt' % (data_file.split('.')[0]),fd)
 
     # make plot
     if opts.plot:
-        plt.plot(fd)
-        plt.xlabel("Frame #")
-        plt.ylabel("Framewise Displacement (mm)")
-        plt.show()
+        make_plot(fd)
