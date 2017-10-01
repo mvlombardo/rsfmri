@@ -26,6 +26,15 @@ def parse_args():
     (options,args) = parser.parse_args()
     return(options)
 
+def make_plot(data):
+    """
+    Make DVARS plot
+    """
+    plt.plot(data)
+    plt.xlabel("Frame #")
+    plt.ylabel("DVARS (%x10)")
+    plt.show()
+
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
@@ -60,7 +69,4 @@ if __name__ == '__main__':
 
     # make plot
     if opts.plot:
-        plt.plot(dvars)
-        plt.xlabel("Frame #")
-        plt.ylabel("DVARS (%x10)")
-        plt.show()
+        make_plot(dvars):
