@@ -25,7 +25,7 @@ def parse_args():
     (options,args) = parser.parse_args()
     return(options)
 
-
+# function for making plot
 def make_plot(data):
     """
     Make FD plot
@@ -34,6 +34,7 @@ def make_plot(data):
     plt.xlabel("Frame #")
     plt.ylabel("Framewise Displacement (mm)")
     plt.show()
+
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
