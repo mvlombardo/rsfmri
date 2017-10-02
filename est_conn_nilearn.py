@@ -2,7 +2,9 @@
 """
 Script that uses nilearn tools to estimate connectivity matrix on rsfMRI data
 
-python est_conn_nilearn.py -d rest_mefc.nii.gz -a HarvardOxford -o connmat.csv -p connmat.pdf
+python est_conn_nilearn.py -d rest_mefc.nii.gz -a HarvardOxford -o connmat_harvoxf.csv -p connmat_harvoxf.pdf
+python est_conn_nilearn.py -d rest_mefc.nii.gz -a AAL -o connmat_aal.csv -p connmat_aal.pdf
+python est_conn_nilearn.py -d rest_mefc.nii.gz -a HarvardOxford -o connmat_pc_harvoxf.csv -p connmat_pc_harvoxf.pdf --cest partialcorr
 """
 
 # import modules
@@ -127,6 +129,10 @@ if __name__ == '__main__':
     cmin = np.array(opts.cmin, dtype = float)
     fig_size = opts.fig_size
     fig_size = np.array(fig_size.split(','), dtype = int)
+    if opts.cest == "correlation":
+        conn_estimator = "correlation"
+    elif opts.cest == "partialcorr":
+        conn_estimator = "partial correlation"
 
     # get atlas
     [atlas_filename, labels] = get_atlas(atlas_name, verbose = verbose_tf)
@@ -136,7 +142,6 @@ if __name__ == '__main__':
         standardize_arg = True, verbose_arg = verbose_arg)
 
     # estimate connectivity
-    conn_estimator = opts.cest
     [corr_meas, corr_matrix] = estimate_connectivity(time_series,
         measure_type = conn_estimator)
     # save connectivity matrix to csv file
