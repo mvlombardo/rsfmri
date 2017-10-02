@@ -15,7 +15,32 @@ import numpy as np
 from matplotlib import pyplot as plt
 from optparse import OptionParser
 import pandas as pd
+import sys
 
+
+# function to check dependencies
+def dep_check():
+    """
+    Check dependencies.
+    """
+
+    print '++ Checking system for dependencies...'
+    fails=0
+
+    try:
+        import nilearn
+    except:
+        error_message = """"*+ Can't import nilearn!
+        To install nilearn do:  pip install -U --user nilearn
+        """
+        print(error_message)
+        fails = fails + 1
+
+    if fails==0:
+        print " + Dependencies OK."
+    else:
+        print "*+ EXITING. Please see error messages."
+        sys.exit()
 
 
 # function to parse input arguments
