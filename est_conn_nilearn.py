@@ -7,10 +7,15 @@ python est_conn_nilearn.py -d rest_mefc.nii.gz -a AAL -o connmat_aal.csv -p conn
 python est_conn_nilearn.py -d rest_mefc.nii.gz -a HarvardOxford -o connmat_pc_harvoxf.csv -p connmat_pc_harvoxf.pdf --cest partialcorr
 """
 
-# import modules
+## import modules
+# nilearn is not default within Anaconda, so one must install nilearn manually
+# by doing the following at the command line:
+# pip install -U --user nilearn
 from nilearn import datasets
 from nilearn.input_data import NiftiLabelsMasker
 from nilearn.connectome import ConnectivityMeasure
+
+# all of the modules below should be installed as part of default Anaconda
 import numpy as np
 from matplotlib import pyplot as plt
 from optparse import OptionParser
@@ -137,6 +142,9 @@ def plot_connectivity_matrix(correlation_matrix, labels,
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
+
+    # check dependencies
+    dep_check()
 
     # parse arguments
     opts = parse_args()
