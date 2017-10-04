@@ -48,10 +48,9 @@ def write_summary_stats(summary_stats, outname):
     """
     Write summary stats to file.
     """
-    file2write = outname
 
     outseries = pd.Series(summary_stats)
-    outseries.to_csv(file2write)
+    outseries.to_csv(outname)
 
 
 # boilerplate code to call main code for executing
@@ -74,7 +73,7 @@ if __name__ == '__main__':
 
     # save summary stats to a file
     summary_stats = compute_summary_stats(fd)
-    outname = '%s_fd_summary_stats.txt' % (data_file.split('.')[0])
+    outname = '%s_fd_summary_stats.csv' % (data_file.split('.')[0])
     write_summary_stats(summary_stats, outname)
 
     # make plot
