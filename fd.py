@@ -69,13 +69,14 @@ if __name__ == '__main__':
     fd=np.sum(dmdt,axis=1)
 
     # save fd to text file
-    np.savetxt('%s_fd.txt' % (data_file.split('.')[0]),fd)
+    outname = '%s_fd.txt' % (data_file.split('.')[0])
+    np.savetxt(outname,fd)
+
+    # save summary stats to a file
+    summary_stats = compute_summary_stats(fd)
+    outname = '%s_fd_summary_stats.txt' % (data_file.split('.')[0])
+    write_summary_stats(summary_stats, outname)
 
     # make plot
     if opts.plot:
         make_plot(fd)
-
-    if opts.outputcsv:
-        summary_stats = compute_summary_stats(fd)
-        outname = '%s_fd_summary_stats.txt' % (data_file.split('.')[0])
-        write_summary_stats(summary_stats, outname)
