@@ -14,6 +14,12 @@ python plot_fd_dvars.py --fd motion_fd.txt --dvars_sm rest_sm_dvars.txt
     --subid 0051456 --pdf2save fd_plot.pdf
 """
 
+# import modules
+import numpy as np
+import matplotlib.pyplot as plt
+from optparse import OptionParser
+
+
 # function to plot fd
 def plot_fd(fname, subid, gridline_width = 0.5):
 
@@ -62,20 +68,14 @@ def parse_args():
     return(options)
 
 
-# grab arguments
-# import sys
-# fd_file = sys.argv[1]
-# subid2use = sys.argv[2]
-# pdf2save = sys.argv[3]
-# import libraries
-import numpy as np
-import matplotlib.pyplot as plt
-from optparse import OptionParser
+# boilerplate code to call main code for executing
+if __name__ == '__main__':
 
-# call main function
-options = parse_args()
-plot_fd(options.fd_file, options.subid)
-plot_dvars(options.dvars_sm_file, options.dvars_noise_file,
-    options.dvars_wds_file, options.subid)
-# save figure as pdf
-plt.savefig(options.pdf2save)
+    # call main function
+    options = parse_args()
+    plot_fd(options.fd_file, options.subid)
+    plot_dvars(options.dvars_sm_file, options.dvars_noise_file,
+        options.dvars_wds_file, options.subid)
+    
+    # save figure as pdf
+    plt.savefig(options.pdf2save)
