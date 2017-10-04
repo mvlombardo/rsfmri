@@ -14,6 +14,7 @@ import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 from optparse import OptionParser
+import pandas as pd
 
 
 def parse_args():
@@ -70,6 +71,22 @@ def make_plot(data):
     plt.show()
 
 
+def compute_summary_stats(dvars):
+    """
+    Compute summary stats.
+    """
+    summary_stats = {"meanDVARS":fd.mean(), "medianDVARS":np.median(fd),
+        "minDVARS":fd.min(), "maxDVARS":fd.max()}
+    return(summary_stats)
+
+
+def write_summary_stats(summary_stats, outname):
+    """
+    Write summary stats to file.
+    """
+
+    outseries = pd.Series(summary_stats)
+    outseries.to_csv(outname)
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
@@ -120,6 +137,11 @@ if __name__ == '__main__':
     #Threshold differentials with extreme values, compute DVARS
     dvars = np.sqrt(np.mean(dpdt[:,dpdt_mask]**2,1))
     np.savetxt('%s_dvars.txt' % dfn.split('.nii.gz')[0],dvars)
+
+    # save summary stats to a file
+    summary_stats = compute_summary_stats(dvars)
+    outname = '%s_dvars_summary_stats.csv' % (data_file.split('.')[0])
+    write_summary_stats(summary_stats, outname)
 
     # make plot
     if opts.plot:
