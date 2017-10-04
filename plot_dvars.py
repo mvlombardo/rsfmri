@@ -14,6 +14,11 @@ python plot_dvars.py --dvars_sm rest_sm_dvars.txt
     --subid 0051456 --pdf2save dvars_plot.pdf
 """
 
+# import modules
+import numpy as np
+import matplotlib.pyplot as plt
+from optparse import OptionParser
+
 # main function
 def plot_dvars(pp_fname, noise_fname, wds_fname, subid, fname2save,
     gridline_width = 0.5):
@@ -54,11 +59,6 @@ def parse_args():
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
-
-    # import libraries
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from optparse import OptionParser
 
     # parse arguments
     options = parse_args()
