@@ -12,6 +12,7 @@ python fd.py -d rest_motion.1D
 import numpy as np
 import matplotlib.pyplot as plt
 from optparse import OptionParser
+import pandas as pd
 
 
 # function to parse input arguments
@@ -35,6 +36,23 @@ def make_plot(data):
     plt.ylabel("Framewise Displacement (mm)")
     plt.show()
 
+def compute_summary_stats(fd):
+    """
+    Compute summary stats.
+    """
+    summary_stats = {"meanFD":fd.mean(), "medianFD":np.median(fd),
+        "minFD":fd.min(), "maxFD":fd.max()}
+    return(summary_stats)
+
+def write_summary_stats(summary_stats, outname):
+    """
+    Write summary stats to file.
+    """
+    file2write = outname
+
+    outseries = pd.Series(summary_stats)
+    outseries.to_csv(file2write)
+
 
 # boilerplate code to call main code for executing
 if __name__ == '__main__':
@@ -56,3 +74,8 @@ if __name__ == '__main__':
     # make plot
     if opts.plot:
         make_plot(fd)
+
+    if opts.outputcsv:
+        summary_stats = compute_summary_stats(fd)
+        outname = '%s_fd_summary_stats.txt' % (data_file.split('.')[0])
+        write_summary_stats(summary_stats, outname)
