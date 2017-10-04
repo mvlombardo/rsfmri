@@ -13,6 +13,7 @@ import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
 from optparse import OptionParser
+import pandas as pd
 
 
 # function to parse input arguments
@@ -34,6 +35,25 @@ def make_plot(data):
     plt.xlabel("Frame #")
     plt.ylabel("DVARS (%x10)")
     plt.show()
+
+
+def compute_summary_stats(dvars):
+    """
+    Compute summary stats.
+    """
+    summary_stats = {"meanDVARS":fd.mean(), "medianDVARS":np.median(fd),
+        "minDVARS":fd.min(), "maxDVARS":fd.max()}
+    return(summary_stats)
+
+def write_summary_stats(summary_stats, outname):
+    """
+    Write summary stats to file.
+    """
+    file2write = outname
+
+    outseries = pd.Series(summary_stats)
+    outseries.to_csv(file2write)
+
 
 
 # boilerplate code to call main code for executing
@@ -66,6 +86,11 @@ if __name__ == '__main__':
 
     # save DVARS to text file
     np.savetxt('%s_dvars.txt' % nii.split('.')[0],dvars)
+
+    # save summary stats to a file
+    summary_stats = compute_summary_stats(dvars)
+    outname = '%s_dvars_summary_stats.csv' % (data_file.split('.')[0])
+    write_summary_stats(summary_stats, outname)
 
     # make plot
     if opts.plot:
