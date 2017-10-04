@@ -49,10 +49,9 @@ def write_summary_stats(summary_stats, outname):
     """
     Write summary stats to file.
     """
-    file2write = outname
 
     outseries = pd.Series(summary_stats)
-    outseries.to_csv(file2write)
+    outseries.to_csv(outname)
 
 
 
