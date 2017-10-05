@@ -2,12 +2,6 @@
 """
 plot_fd_dvars.py - plots framewise displacement and dvars as pdf plot
 
-python plot_fd_dvars.py fd_file subid fname2save
-
-fd_file = filename of fd.txt
-subid = subject id
-fname2save = filename of pdf to save
-
 Example usage:
 python plot_fd_dvars.py --fd motion_fd.txt --dvars_sm rest_sm_dvars.txt
     --dvars_noise rest_noise_dvars.txt --dvars_wds rest_wds_dvars.txt
@@ -76,6 +70,6 @@ if __name__ == '__main__':
     plot_fd(options.fd_file, options.subid)
     plot_dvars(options.dvars_sm_file, options.dvars_noise_file,
         options.dvars_wds_file, options.subid)
-    
+
     # save figure as pdf
     plt.savefig(options.pdf2save)
