@@ -44,7 +44,7 @@ def plot_dvars(pp_fname, noise_fname, wds_fname, subid, gridline_width = 0.5):
     plt.title(subid)
     plt.xlabel('Volume')
     plt.ylabel('DVARS')
-    plt.legend()
+    # plt.legend()
     plt.grid(linewidth = gridline_width)
     plt.tight_layout()
 
