@@ -85,7 +85,7 @@ extopts.add_option('',"--skullstrip",action="store_true",dest='skullstrip',help=
 extopts.add_option('',"--ss",dest='ss',help="Transform brain to standard space. Options are MNI152, MNI_caez, TT_MNI, TT_N27, TT_ICBM, e.g. --ss TT_MNI",default='')
 extopts.add_option('',"--qwarp",dest='qwarp',help="Use non-linear warping for standard space transform, e.g. --qwarp",default=False)
 extopts.add_option('',"--align_ss",action="store_true",dest='align_ss',help="Try this flag if standard space transform has failed",default=False)
-extopts.add_option('',"--coreg_cfun",dest='coreg_cfun',help="specify coreg cost function. Default lpc. ex: --coreg_cfun=nmi",default='lpc')
+extopts.add_option('',"--coreg_cfun",dest='coreg_cfun',help="specify coreg cost functional. Default lpc. ex: --coreg_cfun=nmi",default='lpc')
 extopts.add_option('',"--TR",dest='TR',help="The TR. Default is to read from input dataset",default='')
 extopts.add_option('',"--tpattern",dest='tpattern',help="Slice timing (i.e. alt+z, see 3dTshift --help). Default from header. Correction skipped if not found.",default='')
 extopts.add_option('',"--zeropad",dest='zeropad',help="Zeropadding options. -z N means add N slabs in all directions. Default 15 (N.B. autoboxed after coregistration)",default="15")
