@@ -4,7 +4,7 @@
 # Last update: 25-01-2015 (AXP)
 
 # Core Image Processing adapted from http://dx.doi.org/10.1016/j.neuroimage.2011.12.028
-# Kundu, P., Inati, S.J., Evans, J.W., Luh, W.M. & Bandettini, P.A. Differentiating 
+# Kundu, P., Inati, S.J., Evans, J.W., Luh, W.M. & Bandettini, P.A. Differentiating
 #   BOLD and non-BOLD signals in fMRI time series using multi-echo EPI. NeuroImage (2012).
 
 # De-noising module adapted for motion artifact removal by Patel, AX. (2014).
@@ -85,6 +85,7 @@ extopts.add_option('',"--skullstrip",action="store_true",dest='skullstrip',help=
 extopts.add_option('',"--ss",dest='ss',help="Transform brain to standard space. Options are MNI152, MNI_caez, TT_MNI, TT_N27, TT_ICBM, e.g. --ss TT_MNI",default='')
 extopts.add_option('',"--qwarp",dest='qwarp',help="Use non-linear warping for standard space transform, e.g. --qwarp",default=False)
 extopts.add_option('',"--align_ss",action="store_true",dest='align_ss',help="Try this flag if standard space transform has failed",default=False)
+extopts.add_option('',"--coreg_cfun",dest='coreg_cfun',help="specify coreg cost function. Default lpc. ex: --coreg_cfun=nmi",default='lpc')
 extopts.add_option('',"--TR",dest='TR',help="The TR. Default is to read from input dataset",default='')
 extopts.add_option('',"--tpattern",dest='tpattern',help="Slice timing (i.e. alt+z, see 3dTshift --help). Default from header. Correction skipped if not found.",default='')
 extopts.add_option('',"--zeropad",dest='zeropad',help="Zeropadding options. -z N means add N slabs in all directions. Default 15 (N.B. autoboxed after coregistration)",default="15")
@@ -160,15 +161,15 @@ osf='.nii.gz'		#Using NIFTI outputs
 vrbase=prefix
 if options.align_base == '':
 	align_base = basebrik
-else: 
+else:
 	align_base = options.align_base
 setname=prefix+options.label
 startdir=rstrip(popen('pwd').readlines()[0])
 combstr=""; allcombstr=""
 
-if options.overwrite: 
+if options.overwrite:
 	system('rm -rf spp.%s' % (setname))
-else: 
+else:
 	sl.append("if [[ -e spp.%s/stage ]]; then echo SpeedyPP directory exists, exiting \(try --OVERWRITE\).; exit; fi" % (setname))
 
 sl.append("starttime=`date +%s`")
@@ -185,7 +186,7 @@ elif options.zeropad!='':
 	zeropad_opts=options.zeropad
 else:
 	zeropad_opts=''
-					 
+
 # Time Despike options
 if options.tds:
 	despike_opt = "-despike"
@@ -236,7 +237,7 @@ if options.anat!='':
 		else:
 			print "Cannot understand the standard space template entered."
 			sys.exit()
-	
+
 	if options.ss=='' and options.qwarp:
 		print "You have specified non-linear standard space warping with qwarp, but no standard space template."
 		print "Please specify the --ss option on input. Exiting."
@@ -271,11 +272,11 @@ De-Noising Module:  Ameera X Patel (2014). See http://dx.doi.org/10.1016/j.neuro
 
 Please cite:
 
-Patel, AX. et al. A wavelet method for modeling and despiking motion artifacts 
+Patel, AX. et al. A wavelet method for modeling and despiking motion artifacts
 from resting-state fMRI time series. NeuroImage (2014). 95:287-304.
 
 """
-										 
+
 
 #Parse anatomical processing options, process anatomical
 if options.anat != '':
@@ -297,13 +298,13 @@ if options.anat != '':
 vrAinput = "%s/%s%s" % (startdir,vrbase,isf)
 sl.append("3dvolreg -tshift -quintic -prefix ./%s_vrA%s -base %s[%s] -dfile ./%s_vrA.1D -1Dmatrix_save ./%s_vrmat.aff12.1D %s" % (vrbase,isf,vrAinput,basebrik,vrbase,prefix,vrAinput))
 vrAinput = "./%s_vrA%s" % (vrbase,isf)
-if options.oblique: 
+if options.oblique:
 	if options.anat!='':
 		sl.append("3dWarp -verb -card2oblique %s[%s] -overwrite  -newgrid 1.000000 -prefix ./%s_ob.nii.gz %s/%s | \grep  -A 4 '# mat44 Obliquity Transformation ::'  > %s_obla2e_mat.1D" % (vrAinput,basebrik,anatprefix,startdir,nsmprage,prefix))
 	else: sl.append("3dWarp -overwrite -prefix %s -deoblique %s" % (vrAinput,vrAinput))
 sl.append("1dcat './%s_vrA.1D[1..6]{%s..$}' > %s/%s_motion.1D " % (vrbase,basebrik,startdir,prefix))
-										 
-										 
+
+
 # Compute Tshift and mask
 dsin = prefix
 if options.tpattern!='':
@@ -317,16 +318,16 @@ sl.append("3drefit -deoblique -TR %s %s_ts+orig" % (options.TR,dsin))
 sl.append("3dAllineate -overwrite -final NN -NN -float -1Dmatrix_apply %s_vrmat.aff12.1D'{%i..%i}' -base %s[%s] -input %s_ts+orig'[%i..%i]' -prefix %s_vrA.nii.gz" % \
 				(prefix,int(basebrik),int(basebrik)+5,vrAinput,basebrik,dsin,int(basebrik),int(basebrik)+5,dsin))
 
-										 
+
 sl.append("3dcalc -expr 'a' -a %s[%s] -prefix ./_eBmask%s" % (vrAinput,align_base,osf))
 sl.append("bet _eBmask%s eBmask%s" % (osf,osf))
 sl.append("fast -t 2 -n 3 -H 0.1 -I 4 -l 20.0 -b -o eBmask eBmask%s" % (osf))
 sl.append("3dcalc -a eBmask%s -b eBmask_bias%s -expr 'a/b' -prefix eBbase%s" % ( osf, osf, osf))
 
-# Calculate affine anatomical warp if anatomical provided, then combine motion correction and coregistration parameters 
+# Calculate affine anatomical warp if anatomical provided, then combine motion correction and coregistration parameters
 if options.anat!='':
 	sl.append("cp %s/%s* ." % (startdir,nsmprage))
-	
+
 	if options.ss:
 		atnsmprage = "%s_at.nii.gz" % (dsprefix(nsmprage))
 		if not dssuffix(nsmprage).__contains__('nii'): sl.append("3dcalc -a %s -expr 'a' -prefix %s.nii.gz" % (nsmprage,dsprefix(nsmprage)))
@@ -340,14 +341,16 @@ if options.anat!='':
 			sl.append("3dQwarp -overwrite -resample -duplo -useweight -blur 2 2 -workhard -base %s/standard/%s -prefix ./%snl.nii.gz -source ./%su.nii.gz" % (tempdir,ssstr,dsprefix(atnsmprage),dsprefix(atnsmprage)) )
 			sl.append("3dcopy ./%snl.nii.gz %s/" % (dsprefix(atnsmprage),startdir) )
 			sl.append("fi")
-			
+
 	align_args=""
 	if options.align_args!="": align_args=options.align_args
 	elif options.oblique: align_args = " -cmass -maxrot 30 -maxshf 30 "
 	else: align_args=" -maxrot 20 -maxshf 20 -parfix 7 1  -parang 9 0.83 1.0 "
 	if options.oblique: alnsmprage = "./%s_ob.nii.gz" % (anatprefix)
 	else: alnsmprage = "%s/%s" % (startdir,nsmprage)
-	sl.append("3dAllineate -weight_frac 1.0 -VERB -warp aff -weight eBmask_pve_0.nii.gz -lpc -base eBbase.nii.gz -master SOURCE -source %s -prefix ./%s_al -1Dmatrix_save %s_al_mat %s" % (alnsmprage, anatprefix,anatprefix,align_args))
+	coreg_cfun = '-%s' % options.coreg_cfun
+	# sl.append("3dAllineate -weight_frac 1.0 -VERB -warp aff -weight eBmask_pve_0.nii.gz -lpc -base eBbase.nii.gz -master SOURCE -source %s -prefix ./%s_al -1Dmatrix_save %s_al_mat %s" % (alnsmprage, anatprefix,anatprefix,align_args))
+	sl.append("3dAllineate -weight_frac 1.0 -VERB -warp aff -weight eBmask_pve_0.nii.gz %s -base eBbase.nii.gz -master SOURCE -source %s -prefix ./%s_al -1Dmatrix_save %s_al_mat %s" % (coreg_cfun, alnsmprage, anatprefix,anatprefix,align_args))
 	if options.ss: tlrc_opt = "%s::WARP_DATA -I" % (atnsmprage)
 	else: tlrc_opt = ""
 	if options.oblique: oblique_opt = "%s_obla2e_mat.1D" % prefix
@@ -366,7 +369,7 @@ if zeropad_opts!="" : sl.append("3dZeropad %s -prefix _eBvrmask.nii.gz %s_ts+ori
 if options.anat!='':
 	if options.qwarp:
 		sl.append("voxsize=`ccalc $(3dinfo -voxvol _eBvrmask.nii.gz)**.33`") #Set voxel size
-		if old_qwarp: 
+		if old_qwarp:
 			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' -affter '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
 		else:
 			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
@@ -394,7 +397,7 @@ else:
 
 if options.FWHM=='0mm' or str(options.FWHM)=='0':
 	sl.append("3dcalc -prefix ./%s_sm%s -a ./%s_vr%s[%i..$] -b eBvrmask.nii.gz -expr 'a*notzero(b)' " % (dsin,osf,dsin,osf,basebrik))
-else: 
+else:
 	sl.append("3dBlurInMask -fwhm %s -mask eBvrmask%s -prefix ./%s_sm%s ./%s_vr%s[%i..$]" % (options.FWHM,osf,dsin,osf,dsin,osf,basebrik))
 sl.append("3dBrickStat -mask eBvrmask.nii.gz -percentile 50 1 50 %s_sm%s[%s] > gms.1D" % (dsin,osf,basebrik))
 sl.append("gms=`cat gms.1D`; gmsa=($gms); p50=${gmsa[1]}")
@@ -437,7 +440,7 @@ if not options.keep_int: sl.append("rm %s_ts+orig* %s_vr%s" % (dsin,dsin,osf))
 
 #Build denoising regressors
 regs = []
-if options.rall or options.rmot: 
+if options.rall or options.rmot:
 	sl.append("1d_tool.py -demean -infile %s/%s_motion.1D -write motion_dm.1D" % (startdir,prefix))
 	regs.append("motion_dm.1D")
 if options.rall or options.rmotd:
