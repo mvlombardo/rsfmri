@@ -136,11 +136,11 @@ if __name__ == '__main__':
 
     #Threshold differentials with extreme values, compute DVARS
     dvars = np.sqrt(np.mean(dpdt[:,dpdt_mask]**2,1))
-    np.savetxt('%s_dvars.txt' % dfn.split('.nii.gz')[0],dvars)
+    np.savetxt('%s_dvars.txt' % dfn.split('.')[0],dvars)
 
     # save summary stats to a file
     summary_stats = compute_summary_stats(dvars)
-    outname = '%s_dvars_summary_stats.csv' % (dfn.split('.nii.gz')[0])
+    outname = '%s_dvars_summary_stats.csv' % (dfn.split('.')[0])
     write_summary_stats(summary_stats, outname)
 
     # make plot
