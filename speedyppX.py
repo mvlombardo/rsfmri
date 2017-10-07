@@ -42,8 +42,10 @@ def dsprefix(idn):
 def dssuffix(idna):
 	suffix = idna.split(dsprefix(idna))[-1]
 	spl_suffix=suffix.split('.')
-	if len(spl_suffix[0])!=0 and spl_suffix[0][0] == '+': return spl_suffix[0]
-	else: return suffix
+	if len(spl_suffix[0])!=0 and spl_suffix[0][0] == '+':
+		return spl_suffix[0]
+	else:
+		return suffix
 
 
 #Configure options and help dialog
@@ -301,7 +303,8 @@ vrAinput = "./%s_vrA%s" % (vrbase,isf)
 if options.oblique:
 	if options.anat!='':
 		sl.append("3dWarp -verb -card2oblique %s[%s] -overwrite  -newgrid 1.000000 -prefix ./%s_ob.nii.gz %s/%s | \grep  -A 4 '# mat44 Obliquity Transformation ::'  > %s_obla2e_mat.1D" % (vrAinput,basebrik,anatprefix,startdir,nsmprage,prefix))
-	else: sl.append("3dWarp -overwrite -prefix %s -deoblique %s" % (vrAinput,vrAinput))
+	else:
+		sl.append("3dWarp -overwrite -prefix %s -deoblique %s" % (vrAinput,vrAinput))
 sl.append("1dcat './%s_vrA.1D[1..6]{%s..$}' > %s/%s_motion.1D " % (vrbase,basebrik,startdir,prefix))
 
 
@@ -330,7 +333,8 @@ if options.anat!='':
 
 	if options.ss:
 		atnsmprage = "%s_at.nii.gz" % (dsprefix(nsmprage))
-		if not dssuffix(nsmprage).__contains__('nii'): sl.append("3dcalc -a %s -expr 'a' -prefix %s.nii.gz" % (nsmprage,dsprefix(nsmprage)))
+		if not dssuffix(nsmprage).__contains__('nii'):
+			sl.append("3dcalc -a %s -expr 'a' -prefix %s.nii.gz" % (nsmprage,dsprefix(nsmprage)))
 		sl.append("if [ ! -e %s ]; then \@auto_tlrc -no_ss -base %s/standard/%s -input %s.nii.gz -suffix _at -ok_notice; fi " % (atnsmprage,tempdir,ssstr,dsprefix(nsmprage)) )
 		sl.append("gzip -f ./%s.nii" % (dsprefix(atnsmprage)) )
 		sl.append("3dAutobox -prefix ./sstemp.nii.gz %s/standard/%s" % (tempdir,ssstr) )
@@ -343,28 +347,41 @@ if options.anat!='':
 			sl.append("fi")
 
 	align_args=""
-	if options.align_args!="": align_args=options.align_args
-	elif options.oblique: align_args = " -cmass -maxrot 30 -maxshf 30 "
-	else: align_args=" -maxrot 20 -maxshf 20 -parfix 7 1  -parang 9 0.83 1.0 "
-	if options.oblique: alnsmprage = "./%s_ob.nii.gz" % (anatprefix)
-	else: alnsmprage = "%s/%s" % (startdir,nsmprage)
+	if options.align_args!="":
+		align_args=options.align_args
+	elif options.oblique:
+		align_args = " -cmass -maxrot 30 -maxshf 30 "
+	else:
+		align_args=" -maxrot 20 -maxshf 20 -parfix 7 1  -parang 9 0.83 1.0 "
+	if options.oblique:
+		alnsmprage = "./%s_ob.nii.gz" % (anatprefix)
+	else:
+		alnsmprage = "%s/%s" % (startdir,nsmprage)
 	coreg_cfun = '-%s' % options.coreg_cfun
 	# sl.append("3dAllineate -weight_frac 1.0 -VERB -warp aff -weight eBmask_pve_0.nii.gz -lpc -base eBbase.nii.gz -master SOURCE -source %s -prefix ./%s_al -1Dmatrix_save %s_al_mat %s" % (alnsmprage, anatprefix,anatprefix,align_args))
 	sl.append("3dAllineate -weight_frac 1.0 -VERB -warp aff -weight eBmask_pve_0.nii.gz %s -base eBbase.nii.gz -master SOURCE -source %s -prefix ./%s_al -1Dmatrix_save %s_al_mat %s" % (coreg_cfun, alnsmprage, anatprefix,anatprefix,align_args))
-	if options.ss: tlrc_opt = "%s::WARP_DATA -I" % (atnsmprage)
-	else: tlrc_opt = ""
-	if options.oblique: oblique_opt = "%s_obla2e_mat.1D" % prefix
-	else: oblique_opt = ""
+	if options.ss:
+		tlrc_opt = "%s::WARP_DATA -I" % (atnsmprage)
+	else:
+		tlrc_opt = ""
+	if options.oblique:
+		oblique_opt = "%s_obla2e_mat.1D" % prefix
+	else:
+		oblique_opt = ""
 	sl.append("cat_matvec -ONELINE  %s %s %s_al_mat.aff12.1D -I  %s_vrmat.aff12.1D  > %s_wmat.aff12.1D" % (tlrc_opt,oblique_opt,anatprefix,prefix,prefix))
-else: sl.append("cp %s_vrmat.aff12.1D %s_wmat.aff12.1D" % (prefix,prefix))
+else:
+	sl.append("cp %s_vrmat.aff12.1D %s_wmat.aff12.1D" % (prefix,prefix))
 
 #Detect if current AFNI has old 3dNwarpApply
-if " -affter aaa  = *** THIS OPTION IS NO LONGER AVAILABLE" in commands.getstatusoutput("3dNwarpApply -help")[1]: old_qwarp = False
-else: old_qwarp = True
+if " -affter aaa  = *** THIS OPTION IS NO LONGER AVAILABLE" in commands.getstatusoutput("3dNwarpApply -help")[1]:
+	old_qwarp = False
+else:
+	old_qwarp = True
 
 # Extended Image Processing
 
-if zeropad_opts!="" : sl.append("3dZeropad %s -prefix _eBvrmask.nii.gz %s_ts+orig[%s]" % (zeropad_opts,dsin,basebrik))
+if zeropad_opts!="" :
+	sl.append("3dZeropad %s -prefix _eBvrmask.nii.gz %s_ts+orig[%s]" % (zeropad_opts,dsin,basebrik))
 
 if options.anat!='':
 	if options.qwarp:
@@ -373,8 +390,10 @@ if options.anat!='':
 			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' -affter '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
 		else:
 			sl.append("3dNwarpApply -overwrite -nwarp './%snl_WARP.nii.gz' '%s_wmat.aff12.1D' -master sstemp.nii.gz -dxyz ${voxsize} -source _eBvrmask.nii.gz -interp NN -prefix ./_eBvrmask.nii.gz" % (dsprefix(atnsmprage),prefix))
-		if options.betmask: sl.append("bet _eBvrmask%s eBvrmask%s " % (osf,osf ))
-		else: sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
+		if options.betmask:
+			sl.append("bet _eBvrmask%s eBvrmask%s " % (osf,osf ))
+		else:
+			sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
 		sl.append("3dAutobox -overwrite -prefix eBvrmask%s eBvrmask%s" % (osf,osf) )
 		sl.append("3dcalc -a eBvrmask.nii.gz -expr 'notzero(a)' -overwrite -prefix eBvrmask.nii.gz")
 		if old_qwarp:
@@ -384,8 +403,10 @@ if options.anat!='':
 	else:
 		sl.append("3dAllineate -overwrite -final %s -%s -float -1Dmatrix_apply %s_wmat.aff12.1D -base _eBvrmask.nii.gz -input _eBvrmask.nii.gz -prefix ./_eBvrmask.nii.gz" % \
 			(options.align_interp,options.align_interp,prefix))
-		if options.betmask: sl.append("bet _eBvrmask%s eBvrmask%s " % (osf,osf ))
-		else: sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
+		if options.betmask:
+			sl.append("bet _eBvrmask%s eBvrmask%s " % (osf,osf ))
+		else:
+			sl.append("3dAutomask -overwrite -prefix eBvrmask%s _eBvrmask%s" % (osf,osf))
 		sl.append("3dAutobox -overwrite -prefix eBvrmask%s eBvrmask%s" % (osf,osf) )
 		sl.append("3dcalc -a eBvrmask.nii.gz -expr 'notzero(a)' -overwrite -prefix eBvrmask.nii.gz")
 		sl.append("3dAllineate -final %s -%s -float -1Dmatrix_apply %s_wmat.aff12.1D -base eBvrmask%s -input  %s_ts+orig -prefix ./%s_vr%s" % \
@@ -436,7 +457,8 @@ if options.ss:
 		sl.append("3drefit -space TLRC %s_in%s" % (dsin,osf))
 
 #if not options.keep_int: sl.append("rm %s_ts+orig* %s_vr%s %s_sm%s" % (dsin,dsin,osf,dsin,osf)) #THIS WAS THE ORIGINAL!
-if not options.keep_int: sl.append("rm %s_ts+orig* %s_vr%s" % (dsin,dsin,osf))
+if not options.keep_int:
+	sl.append("rm %s_ts+orig* %s_vr%s" % (dsin,dsin,osf))
 
 #Build denoising regressors
 regs = []
@@ -541,4 +563,5 @@ ofh = open('_spp_%s.sh' % setname ,'w')
 #print "\n".join(sl)+"\n" #DEBUG
 ofh.write("\n".join(sl)+"\n")
 ofh.close()
-if not options.exit: system('bash _spp_%s.sh' % setname)
+if not options.exit:
+	system('bash _spp_%s.sh' % setname)
