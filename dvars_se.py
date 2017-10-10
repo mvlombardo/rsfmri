@@ -63,7 +63,7 @@ if __name__ == '__main__':
     data_file = opts.data
 
     # load data
-    nii = data
+    nii = data_file
     fn=nib.load(nii)
 
     # get data and vectorize
