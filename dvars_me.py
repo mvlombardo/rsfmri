@@ -17,6 +17,7 @@ from optparse import OptionParser
 import pandas as pd
 
 
+# function to parse input arguments
 def parse_args():
     """
     Parse arguments.
@@ -28,12 +29,14 @@ def parse_args():
     (options,args) = parser.parse_args()
     return(options)
 
+
 def _interpolate(a, b, fraction):
     """
     Returns the point at the given fraction between a and b, where
     'fraction' must be between 0 and 1.
     """
     return a + (b - a)*fraction;
+
 
 def scoreatpercentile(a, per, limit=(), interpolation_method='fraction'):
     """
@@ -61,6 +64,7 @@ def scoreatpercentile(a, per, limit=(), interpolation_method='fraction'):
     return score
 
 
+# function to make a plot
 def make_plot(data):
     """
     Make DVARS plot
@@ -71,6 +75,7 @@ def make_plot(data):
     plt.show()
 
 
+# function to compute summary stats
 def compute_summary_stats(dvars):
     """
     Compute summary stats.
@@ -80,6 +85,7 @@ def compute_summary_stats(dvars):
     return(summary_stats)
 
 
+# function to write summary stats to a file
 def write_summary_stats(summary_stats, outname):
     """
     Write summary stats to file.
@@ -126,7 +132,7 @@ if __name__ == '__main__':
 
     d_mask = d_mu!=0
     d_mask = (d_mu > scoreatpercentile(d_mu[d_mask],3)) & (d_mu < scoreatpercentile(d_mu[d_mask],98) )
-    dp =   (d_beta[:,d_mask]/d_mu[d_mask])*100
+    dp = (d_beta[:,d_mask]/d_mu[d_mask])*100
     dpdt = np.abs(dp[1:]-dp[0:-1])+0.0000001
 
     #Condition distribution of dp/dt's
