@@ -41,8 +41,8 @@ def compute_summary_stats(dvars):
     """
     Compute summary stats.
     """
-    summary_stats = {"meanDVARS":fd.mean(), "medianDVARS":np.median(fd),
-        "minDVARS":fd.min(), "maxDVARS":fd.max()}
+    summary_stats = {"meanDVARS":dvars.mean(), "medianDVARS":np.median(dvars),
+        "minDVARS":dvars.min(), "maxDVARS":dvars.max()}
     return(summary_stats)
 
 def write_summary_stats(summary_stats, outname):
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     # load data
     nii = data_file
-    fn=nib.load(nii)
+    fn = nib.load(nii)
 
     # get data and vectorize
     nx,ny,nz,nt = fn.get_data().shape
