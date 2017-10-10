@@ -93,4 +93,4 @@ if __name__ == '__main__':
 
     # make plot
     if opts.plot:
-        make_plot(dvars):
+        make_plot(dvars)
