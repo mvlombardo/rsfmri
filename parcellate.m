@@ -24,6 +24,7 @@ function result = parcellate(atlasfile, datafile, fname2save, MEANCENTER)
 
 %% read in parcellation
 [atlas, dims,scales,bpp,endian] = read_avw(atlasfile);
+% find unique parcel numbers, and remove parcel 0
 parc_num = unique(atlas); parc_num(parc_num==0) = [];
 
 %% read in data
@@ -31,10 +32,14 @@ parc_num = unique(atlas); parc_num(parc_num==0) = [];
 
 %% compute mean within parcel for each time point
 for i = 1:length(parc_num)
+    % make binary ROI mask for specific parcel
     mask = ismember(atlas,parc_num(i));
     
+    % loop over timepoints
     for ivol = 1:size(data,4)
+        % grab specific timepoint
         tmp_vol = data(:,:,:,ivol);
+        % compute mean within parcel mask
         result(ivol,i) = nanmean(tmp_vol(mask));
     end % for i
 
@@ -48,15 +53,19 @@ end
 
 %% mean center data
 if MEANCENTER
+    % loop over each parcel
     for i = 1:size(result,2)
+        % subtract out the mean
         result(:,i) = result(:,i) - nanmean(result(:,i));
     end % for i
 end % if MEANCENTER
 
 
 %% write out result to file
+% format table to write out
 result = cell2table(num2cell(result),'VariableNames',var_names);
+% write to a file
 writetable(result,fname2save,'FileType','text','delimiter',',');
 
 
-end % function parcellate 
+end % function parcellate(atlasfile, datafile, fname2save, MEANCENTER)
