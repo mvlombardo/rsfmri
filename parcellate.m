@@ -1,6 +1,8 @@
 function result = parcellate(atlasfile, datafile, fname2save, MEANCENTER)
 %   parcellate - Extract mean time series from parcellation
 %
+%   Depends on read_avw.m function from FSL to read in *nii.gz files
+%
 %   INPUT
 %       atlasfile = parcellation to use
 %       datafile = data to use
@@ -8,7 +10,7 @@ function result = parcellate(atlasfile, datafile, fname2save, MEANCENTER)
 %       mean_center = set to 1 to remove mean, otherwise set to 0
 %
 %   OUTPUT
-%       result = table [nvols x nparcels]        
+%       result = table [nvols, nparcels]        
 %
 %   Example usage:
 %   
