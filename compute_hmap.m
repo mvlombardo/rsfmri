@@ -3,6 +3,7 @@ function Hmap = compute_hmap(datafile, maskfile, outname, nchunks)
 %   compute_hmap - Compute whole-brain Hurst exponent map
 %   
 %   INPUT
+%
 %       datafile = full filename to 4D time-series data
 %       maskfile = whole brain binary mask of the same size as datafile
 %       outname  = full filename of the resulting H map to save to disk
@@ -14,10 +15,22 @@ function Hmap = compute_hmap(datafile, maskfile, outname, nchunks)
 %                  slow downs.
 %
 %   OUTPUT
+%
 %       Hmap = 3D map whereby each brain voxel contains H
 %
-%   Requires the nonfractal MATLAB toolbox for computing the Hurst exponent
-%   Requires FSL MATLAB functions for reading and writing *nii.gz files
+%   Example usage:
+%
+%       datafile = '/Users/mvlombardo/data/Erest_pp.nii.gz';
+%       maskfile = '/Users/mvlombardo/data/mask.nii.gz';
+%       outname = '/Users/mvlombardo/data/Erest_H.nii.gz';
+%       nchunks = 400;
+%       Hmap = compute_hmap(datafile, maskfile, outname, nchunks);
+%
+%   Dependencies
+%
+%   Requires the nonfractal MATLAB toolbox to compute the Hurst exponent.
+%   Requires FSL MATLAB functions (read_avw, save_avw) for reading and 
+%   writing *nii.gz files.
 %
 %   written by mvlombardo - 19.06.2018
 %   
