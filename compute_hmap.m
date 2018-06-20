@@ -27,12 +27,6 @@ Hfilter = 'haar';
 lb_param = [-0.5,0];
 ub_param = [1.5,10];
 
-%% parameter for controlling how script breaks up voxels into subsets
-% larger numbers of nchunks creates smaller subsets of voxels
-% smaller numbers of nchunks creates larger subsets of voxels
-% it is not advised to use nchunks less than 50
-% nchunks = 400; % break up nbrainvoxels into this many parts
-
 
 %% Read in data and mask and transform 4D data into 2D matrix
 [data] = read_avw(datafile);
@@ -40,6 +34,7 @@ ub_param = [1.5,10];
 
 % number of timepoints
 ntimepoints = size(data,4);
+
 % number of brain voxels in mask
 nbrainvoxels = sum(mask(:));
 
@@ -48,10 +43,13 @@ data_mat = zeros(ntimepoints,nbrainvoxels);
 
 % reshape 4D data into 2D data_mat
 for i = 1:ntimepoints
+    
     % extract current volume
     tmp_vol = data(:,:,:,i);
+    
     % grab all brain voxels
     data_mat(i,:) = tmp_vol(mask);
+
 end % for i
 
 %% Loop over chunks of voxels and compute Hurst exponent
@@ -65,36 +63,49 @@ start_end_idx_mat = [start_num' end_num']; % make start and end index 2 columns 
 % initialize empty H vector to save results into
 H = zeros(1,nbrainvoxels);
 for i = 1:size(start_end_idx_mat,1)
+    
     disp(sprintf('Working on chunk %d',i));
+    
     % get indices to use
     idx2use = start_end_idx_mat(i,1):start_end_idx_mat(i,2);
+    
     % grab subset of data to use
     data2use = data_mat(:,idx2use);
+    
     % compute Hurst
     [Htmp] = bfn_mfin_ml(data2use, ...
         'filter',Hfilter,'lb',lb_param,'ub',ub_param);
+    
     % save H values into final H vector
     H(1,idx2use) = Htmp;
+
 end % for i
 
 %% reshape H vector into an image and write out to disk
 % initial 3D Hmap in memory
 Hmap = zeros(size(mask));
+
 % find indices of brain voxels
 brain_idx = find(mask);
+
 % find x, y, z subscripts for each brain voxel
 [x,y,z] = ind2sub(size(mask),brain_idx);
+
 % loop over brain voxels
 for i = 1:length(brain_idx)
+
     % take each brain voxel and place it into the 3D coordinate for Hmap
     Hmap(x(i),y(i),z(i)) = H(i);
+
 end % for i
 
 %% save file to disk
 if ~isempty(outname)
+
     disp(sprintf('Writing %s to disk',outname));
     vsize = scales; vtype = 'f';
     save_avw(Hmap, outname, vtype, vsize);
+
 end % if
 
 disp('Done');
