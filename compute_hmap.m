@@ -94,6 +94,12 @@ for i = 1:size(start_end_idx_mat,1)
 
 end % for i
 
+%% find voxels with no data in the time-series and re-fill H with NaN
+% mask of voxels with flat-line 0 values in the time-series
+nots_voxel_mask = sum(data_mat,1)==0;
+H(1,nots_voxel_mask) = NaN;
+
+
 %% reshape H vector into an image and write out to disk
 % initial 3D Hmap in memory
 Hmap = zeros(size(mask));
