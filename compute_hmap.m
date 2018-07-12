@@ -1,7 +1,7 @@
 function Hmap = compute_hmap(datafile, maskfile, outname, nchunks)
 %
 %   compute_hmap - Compute whole-brain Hurst exponent map
-%   
+%
 %   INPUT
 %
 %       datafile = full filename to 4D time-series data
@@ -29,11 +29,11 @@ function Hmap = compute_hmap(datafile, maskfile, outname, nchunks)
 %   Dependencies
 %
 %   Requires the nonfractal MATLAB toolbox to compute the Hurst exponent.
-%   Requires FSL MATLAB functions (read_avw, save_avw) for reading and 
+%   Requires FSL MATLAB functions (read_avw, save_avw) for reading and
 %   writing *nii.gz files.
 %
 %   written by mvlombardo - 19.06.2018
-%   
+%
 
 %% parameters used by bfn_mfin_ml to compute Hurst exponent
 Hfilter = 'haar';
@@ -56,10 +56,10 @@ data_mat = zeros(ntimepoints,nbrainvoxels);
 
 % reshape 4D data into 2D data_mat
 for i = 1:ntimepoints
-    
+
     % extract current volume
     tmp_vol = data(:,:,:,i);
-    
+
     % grab all brain voxels
     data_mat(i,:) = tmp_vol(mask);
 
@@ -76,19 +76,19 @@ start_end_idx_mat = [start_num' end_num']; % make start and end index 2 columns 
 % initialize empty H vector to save results into
 H = zeros(1,nbrainvoxels);
 for i = 1:size(start_end_idx_mat,1)
-    
+
     disp(sprintf('Working on chunk %d',i));
-    
+
     % get indices to use
     idx2use = start_end_idx_mat(i,1):start_end_idx_mat(i,2);
-    
+
     % grab subset of data to use
     data2use = data_mat(:,idx2use);
-    
+
     % compute Hurst
     [Htmp] = bfn_mfin_ml(data2use, ...
         'filter',Hfilter,'lb',lb_param,'ub',ub_param);
-    
+
     % save H values into final H vector
     H(1,idx2use) = Htmp;
 
@@ -122,9 +122,10 @@ end % for i
 if ~isempty(outname)
 
     disp(sprintf('Writing %s to disk',outname));
-    vsize = scales; vtype = 'f';
-    save_avw(Hmap, outname, vtype, vsize);
-
+    % vsize = scales; vtype = 'f';
+    % save_avw(Hmap, outname, vtype, vsize);
+    V = spm_vol(maskfile); V.fname = outname; V.private.dat.fname = V.fname;
+    spm_write_vol(V,Hmap);
 end % if
 
 disp('Done');
