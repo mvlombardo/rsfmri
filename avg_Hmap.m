@@ -19,7 +19,7 @@ function result = avg_Hmap(Hmap_file, parcel_file, mask_file, out_file)
 % read in images
 Hmap = read_avw(Hmap_file);
 parcel_map = read_avw(parcel_file);
-mask = read_avw(maks_file); mask = logical(mask);
+mask = read_avw(mask_file); mask = logical(mask);
 
 % get vector of parcel labels
 parcels2use = unique(parcel_map);
@@ -27,7 +27,7 @@ parcels2use(parcels2use==0) = [];
 
 % loop over each parcel and compute the mean from brain voxels that overlap
 % with voxels within the parcel, ignoring NaNs
-result = zeros(1,parcels2use);
+result = zeros(1,length(parcels2use));
 for i = 1:length(parcels2use)
     mask2use = ismember(parcel_map,parcels2use(i)) & mask;
     result(:,i) = nanmean(Hmap(mask2use));
