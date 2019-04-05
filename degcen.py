@@ -63,7 +63,7 @@ def parse_args():
     """
 
     parser=OptionParser()
-    
+
     parser.add_option('-i',"--input", \
                       dest='imgfile', \
                       help="Filename of the input rsfMRI 4D time-series dataset", \
@@ -89,6 +89,11 @@ def parse_args():
                       dest='threshold', \
                       help="Correlation threshold to use if calculated unweighted degree.", \
                       default=None)
+    parser.add_option('-v',"--verbose", \
+                      dest='verbose', \
+                      action='store_true', \
+                      help="Use if you want verbose feedback while script runs.", \
+                      default=False)
 
     (options,args) = parser.parse_args()
 
@@ -96,12 +101,13 @@ def parse_args():
 
 
 # function to load data
-def load_data(imgfile, maskfile, atlasfile=None):
+def load_data(imgfile, maskfile, atlasfile, verbose):
     """
     Load data
     """
 
-    print("Loading data")
+    if verbose:
+        print("Loading data")
 
     # load main 4D time-series data
     img = nib.load(imgfile)
@@ -154,12 +160,13 @@ def load_data(imgfile, maskfile, atlasfile=None):
 
 
 # function to standardize data
-def standardize_data(data, n):
+def standardize_data(data, n, verbose):
     """
     Standardize data
     """
 
-    print("Standardizing data")
+    if verbose:
+        print("Standardizing data")
 
     # compute the mean over time
     time_mean = np.nanmean(data, axis = 1).reshape(n,1)
@@ -174,12 +181,13 @@ def standardize_data(data, n):
 
 
 # function for parcellating data
-def parcellate_data(imgdata, atlasdata, numtps, regions, nregions):
+def parcellate_data(imgdata, atlasdata, numtps, regions, nregions, verbose):
     """
     Parcellate data
     """
 
-    print("Parcellating data")
+    if verbose:
+        print("Parcellating data")
 
     # pre-allocate parc_data array
     parc_data = np.zeros((nregions,numtps))
@@ -206,16 +214,20 @@ def parcellate_data(imgdata, atlasdata, numtps, regions, nregions):
 
 
 # function to compute degree centrality for every voxel
-def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_flag):
+def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_flag, verbose):
     """
     Compute voxel-wise degree centrality map
     """
+
+    if verbose:
+        print("Computing voxel-wise degree centrality map")
 
     result = np.zeros(mask.shape)
 
     for basevoxel in range(0, numvoxels):
 
-        print("Working on %d voxel of %d voxels" % (basevoxel,numvoxels))
+        if verbose:
+            print("Working on %d voxel of %d voxels" % (basevoxel,numvoxels))
 
         x,y,z = indices[basevoxel,:]
 
@@ -239,12 +251,13 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
 
 
 # function to compute degree centrality for parcellation
-def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag):
+def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
     """
     Compute degree centrality on parcellated data
     """
 
-    print("Computing degree centrality on parcels")
+    if verbose:
+        print("Computing degree centrality on parcels")
 
     # compute correlation matrix
     corr_mat = np.corrcoef(parc_zdata)
@@ -257,6 +270,10 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag):
 
     # loop over regions
     for region in range(0,nregions):
+
+        if verbose:
+            print("Working on region %d of %d" % (region,nregions))
+
         rvalues = corr_mat[region,corr_mask[region,:]]
 
         # compute weighted degree
@@ -278,12 +295,13 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag):
     return(result)
 
 # function to write out degree centrality parcellated image
-def save_dc_parc_img(result, mask, atlasfile, regions, outname):
+def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
     """
     Save parcellated degree centrality image
     """
 
-    print("Saving parcellated degree centrality image to disk")
+    if verbose:
+        print("Saving parcellated degree centrality image to disk")
 
     atlas = nib.load(atlasfile)
     atlasdata = atlas.get_data()
@@ -303,17 +321,20 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname):
 
 
 # function to write out degree centrality voxel-wise image
-def save_dc_vox_img(result, imgfile, outname):
+def save_dc_vox_img(result, imgfile, outname, verbose):
     """
     Save voxel-wise degree centrality image
     """
+
+    if verbose:
+        print("Saving voxel-wise degree centrality image")
 
     img = nib.load(imgfile)
     nib.save(nib.Nifti1Image(result, img.get_affine()), outname)
 
 
 # main function to run the degree centrality analysis on parcellated data
-def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag):
+def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose):
     """
     Main function to run all steps for analysis on parcellated data
     """
@@ -328,29 +349,30 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag):
     numtps = datadict["numtps"]
 
     # parcellate data
-    parc_data = parcellate_data(imgdata, atlasdata, numtps, regions, nregions)
+    parc_data = parcellate_data(imgdata, atlasdata, numtps, regions, nregions, verbose)
 
     # standardize data
-    parc_zdata = standardize_data(parc_data, nregions)
+    parc_zdata = standardize_data(parc_data, nregions, verbose)
 
     # compute degree centrality on parcellated data
-    result = compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag)
+    result = compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose)
 
     # save parcellated degree centrality image to disk
     if outname is not None:
-        save_dc_parc_img(result, mask, atlasfile, regions, outname)
+        save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose)
 
     return(result)
 
 
 # main function to run degree centrality analysis on voxel-wise data
-def dc_img(imgfile, maskfile, outname, threshold, weighted_flag):
+def dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose):
     """
     Main function to run all steps for analysis on voxel-wise data
     """
 
     # load data
-    datadict = load_data(imgfile, maskfile, atlasfile=None)
+    atlasfile = None
+    datadict = load_data(imgfile, maskfile, atlasfile, verbose)
     imgdata = datadict["imgdata"]
     mask = datadict["mask"]
     numvoxels = datadict["nregions"]
@@ -360,13 +382,13 @@ def dc_img(imgfile, maskfile, outname, threshold, weighted_flag):
     indices = np.transpose(np.nonzero(mask))
     imgts = imgdata[indices[:,0], indices[:,1], indices[:,2]]
 
-    imgts = standardize_data(imgts, numvoxels)
+    imgts = standardize_data(imgts, numvoxels, verbose)
 
-    result = compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_flag)
+    result = compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_flag, verbose)
 
     # save result to disk
     if outname is not None:
-        save_dc_vox_img(result, imgfile, outname)
+        save_dc_vox_img(result, imgfile, outname, verbose)
 
     return(result)
 
@@ -392,6 +414,9 @@ if __name__ == '__main__':
     # weighted flag
     weighted_flag = opts.weighted
 
+    # verbose flag
+    verbose_flag = opts.verbose
+
     # threshold
     if opts.threshold is not None:
         threshold = np.array(opts.threshold, dtype = float)
@@ -399,7 +424,7 @@ if __name__ == '__main__':
         threshold = opts.threshold
 
     if atlasfile is None:
-        result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag)
+        result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose=verbose_flag)
 
     elif atlasfile is not None:
-        result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag)
+        result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose=verbose_flag)
