@@ -16,7 +16,7 @@ Example usage for running on voxel-wise data
 
 imgfile=~/data/rest_pp01.nii.gz
 maskfile=~/data/mask01.nii.gz
-outfile=~/data/vox_dc01.nii.gz
+outfile=~/data/vox_dc01
 
 # unweighted with r > 0.25 threshold
 thresh=0.25
@@ -36,7 +36,7 @@ Example usage for running on parcellated data
 imgfile=~/data/rest_pp01.nii.gz
 maskfile=~/data/mask01.nii.gz
 atlasfile=~/data/MMP_HCP01.nii.gz
-outfile=~/data/parc_dc01.nii.gz
+outfile=~/data/parc_dc01
 
 # unweighted with r > 0.25 threshold
 thresh=0.25
@@ -52,6 +52,7 @@ python degcen.py -i $imgfile -m $maskfile -a $atlasfile -o $outfile -w
 
 # import libraries
 import numpy as np
+import pandas as pd
 import nibabel as nib
 from optparse import OptionParser
 
@@ -70,7 +71,7 @@ def parse_args():
                       default=None)
     parser.add_option('-o',"--output", \
                       dest='outname', \
-                      help="Output filename", \
+                      help="Output filename prefix", \
                       default=None)
     parser.add_option('-w',"--weighted", \
                       dest='weighted', \
@@ -317,7 +318,17 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
         parc_img[roimask] = result[reg_idx]
 
     # save image to disk
-    nib.save(nib.Nifti1Image(parc_img, atlas.get_affine()), outname)
+    fname2save = "%s.nii.gz" % (outname)
+    nib.save(nib.Nifti1Image(parc_img, atlas.get_affine()), fname2save)
+
+
+# function to write out degree centrality parcellated data to a csv
+def save_dc_parc_csv(result, outname):
+    nreg = result.shape[0]
+    data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
+    res_df = pd.DataFrame(data2use)
+    fname2save = "%s.csv" % (outname)
+    export_csv = res_df.to_csv(fname2save, index = None, header = True)
 
 
 # function to write out degree centrality voxel-wise image
@@ -330,7 +341,8 @@ def save_dc_vox_img(result, imgfile, outname, verbose):
         print("Saving voxel-wise degree centrality image")
 
     img = nib.load(imgfile)
-    nib.save(nib.Nifti1Image(result, img.get_affine()), outname)
+    fname2save = "%s.nii.gz" % (outname)
+    nib.save(nib.Nifti1Image(result, img.get_affine()), fname2save)
 
 
 # main function to run the degree centrality analysis on parcellated data
@@ -340,7 +352,7 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, ver
     """
 
     # load data
-    datadict = load_data(imgfile, maskfile, atlasfile)
+    datadict = load_data(imgfile, maskfile, atlasfile, verbose)
     imgdata = datadict["imgdata"]
     mask = datadict["mask"]
     atlasdata = datadict["atlasdata"]
@@ -360,6 +372,7 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, ver
     # save parcellated degree centrality image to disk
     if outname is not None:
         save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose)
+        save_dc_parc_csv(result, outname)
 
     return(result)
 
@@ -415,7 +428,7 @@ if __name__ == '__main__':
     weighted_flag = opts.weighted
 
     # verbose flag
-    verbose_flag = opts.verbose
+    verbose = opts.verbose
 
     # threshold
     if opts.threshold is not None:
@@ -424,7 +437,7 @@ if __name__ == '__main__':
         threshold = opts.threshold
 
     if atlasfile is None:
-        result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose=verbose_flag)
+        result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose)
 
     elif atlasfile is not None:
-        result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose=verbose_flag)
+        result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose)
