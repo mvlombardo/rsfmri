@@ -142,7 +142,6 @@ def load_data(imgfile, maskfile, atlasfile, verbose):
 
         # count how many unique regions there are
         nregions = len(regions)
-
     else:
         nregions = numvoxels
         regions = None
@@ -195,13 +194,11 @@ def parcellate_data(imgdata, atlasdata, numtps, regions, nregions, verbose):
 
     # loop over regions
     for reg_idx, region in enumerate(regions):
-
         # make an ROI mask
         roimask = atlasdata==region
 
         #loop over time points
         for ivol in range(0,numtps):
-
             # grab specific 3D time point volume
             tmp_data = imgdata[:, :, :, ivol]
 
@@ -226,7 +223,6 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
     result = np.zeros(mask.shape)
 
     for basevoxel in range(0, numvoxels):
-
         if verbose:
             print("Working on %d voxel of %d voxels" % (basevoxel,numvoxels))
 
@@ -238,11 +234,9 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
         if weighted_flag:
             if threshold is None:
                 result[x,y,z] = np.nansum(rvalues) - 1
-
             else:
                 voxmask = rvalues > threshold
                 result[x,y,z] = np.nansum(rvalues[voxmask]) -1
-
         # compute unweighted degree
         else:
             voxmask = rvalues > threshold
@@ -271,7 +265,6 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
 
     # loop over regions
     for region in range(0,nregions):
-
         if verbose:
             print("Working on region %d of %d" % (region,nregions))
 
@@ -286,7 +279,6 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
                 # find regions above some threshold and then sum connection weights
                 connection_mask = rvalues > threshold
                 result[region,] = np.nansum(rvalues[connection_mask])
-
         # compute unweighted degree
         else:
             # sum up the number of connections with the seed that pass threshold
@@ -310,7 +302,6 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
 
     # loop over regions
     for reg_idx, region in enumerate(regions):
-
         # make an ROI mask
         roimask = atlasdata==region
 
@@ -324,6 +315,10 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
 
 # function to write out degree centrality parcellated data to a csv
 def save_dc_parc_csv(result, outname):
+    """
+    Save csv for parcellated degree centrality
+    """
+
     nreg = result.shape[0]
     data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
     res_df = pd.DataFrame(data2use)
@@ -438,6 +433,5 @@ if __name__ == '__main__':
 
     if atlasfile is None:
         result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose)
-
     elif atlasfile is not None:
         result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose)
