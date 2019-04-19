@@ -314,13 +314,14 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
 
 
 # function to write out degree centrality parcellated data to a csv
-def save_dc_parc_csv(result, outname):
+def save_dc_parc_csv(result, outname, regions):
     """
     Save csv for parcellated degree centrality
     """
 
-    nreg = result.shape[0]
-    data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
+    # nreg = result.shape[0]
+    # data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
+    data2use = {"region":regions, "dc":result.reshape(len(regions))}
     res_df = pd.DataFrame(data2use)
     fname2save = "%s.csv" % (outname)
     export_csv = res_df.to_csv(fname2save, index = None, header = True)
@@ -367,7 +368,7 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, ver
     # save parcellated degree centrality image to disk
     if outname is not None:
         save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose)
-        save_dc_parc_csv(result, outname)
+        save_dc_parc_csv(result, outname, regions)
 
     return(result)
 
