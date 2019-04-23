@@ -224,7 +224,7 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
 
     for basevoxel in range(0, numvoxels):
         if verbose:
-            print("Working on %d voxel of %d voxels" % (basevoxel,numvoxels))
+            print("Working on %d voxel of %d voxels" % (basevoxel+1,numvoxels))
 
         x,y,z = indices[basevoxel,:]
 
@@ -233,14 +233,24 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
         # compute weighted degree
         if weighted_flag:
             if threshold is None:
-                result[x,y,z] = np.nansum(rvalues) - 1
+                # result[x,y,z] = np.nansum(rvalues) - 1
+                #
+                # sum r-values across all voxels and divide by number of voxels (excluding seed voxel)
+                result[x,y,z] = (np.nansum(rvalues) - 1)/(numvoxels-1)
             else:
                 voxmask = rvalues > threshold
-                result[x,y,z] = np.nansum(rvalues[voxmask]) -1
+                # result[x,y,z] = np.nansum(rvalues[voxmask]) - 1
+                #
+                # sum r-values for connections above threshold and then divide
+                # by number of connections above threshold
+                result[x,y,z] = (np.nansum(rvalues[voxmask]) - 1)/(sum(voxmask)-1)
         # compute unweighted degree
         else:
             voxmask = rvalues > threshold
-            result[x,y,z] = np.nansum(voxmask) - 1
+            # result[x,y,z] = np.nansum(voxmask) - 1
+            #
+            # proportion of edges
+            result[x,y,z] = np.array(np.nansum(voxmask)-1,dtype=float)/np.array(numvoxels-1,dtype=float)
 
     return(result)
 
@@ -266,7 +276,7 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
     # loop over regions
     for region in range(0,nregions):
         if verbose:
-            print("Working on region %d of %d" % (region,nregions))
+            print("Working on region %d of %d" % (region+1,nregions))
 
         rvalues = corr_mat[region,corr_mask[region,:]]
 
@@ -274,16 +284,26 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
         if weighted_flag:
             if threshold is None:
                 # compute the sum of connection weights
-                result[region,] = np.nansum(rvalues)
+                # result[region,] = np.nansum(rvalues)
+                #
+                # sum r-values across all regions and divide by number of regions
+                result[region,] = np.nansum(rvalues)/len(rvalues)
             else:
                 # find regions above some threshold and then sum connection weights
                 connection_mask = rvalues > threshold
-                result[region,] = np.nansum(rvalues[connection_mask])
+                # result[region,] = np.nansum(rvalues[connection_mask])
+                #
+                # sum r-values for connections above threshold and then divide
+                # by number of connections above threshold
+                result[region,] = (np.nansum(rvalues[connection_mask]))/(sum(connection_mask))
         # compute unweighted degree
         else:
             # sum up the number of connections with the seed that pass threshold
             connection_mask = rvalues > threshold
-            result[region,] = np.nansum(connection_mask)
+            # result[region,] = np.nansum(connection_mask)
+            #
+            # proportion of edges
+            result[region,] = np.array(np.nansum(connection_mask),dtype=float)/np.array(len(rvalues),dtype=float)
 
     return(result)
 
