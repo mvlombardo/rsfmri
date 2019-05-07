@@ -332,16 +332,16 @@ def generate_filestem(outname, weighted_flag, sliding_window, threshold, niiORcs
         if sliding_window and (threshold is None):
             fstem = "swdc"
         elif sliding_window and (threshold is not None):
-            fstem = "sw%.02fdc" % threshold
+            fstem = "swtdc"
         elif not sliding_window and (threshold is None):
             fstem = "wdc"
         elif not sliding_window and (threshold is not None):
-            fstem = "w%.02fdc" % threshold
+            fstem = "wtdc"
     elif not weighted_flag:
         if sliding_window:
-            fstem = "s%.02fdc" % threshold
+            fstem = "sudc"
         elif not sliding_window:
-            fstem = "%.02fdc" % threshold
+            fstem = "udc"
 
     fname2save = "%s_%s%s" % (outname, fstem, niiORcsv)
     return(fname2save)
