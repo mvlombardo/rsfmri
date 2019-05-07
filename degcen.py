@@ -27,8 +27,10 @@ thresh=0.25
 python degcen.py -i $imgfile -m $maskfile -o $outfile -t $thresh -w
 
 # weighted with no threshold
-thresh=0.25
 python degcen.py -i $imgfile -m $maskfile -o $outfile -w
+
+# weighted with no threshold, sliding window analysis
+python degcen.py -i $imgfile -m $maskfile -o $outfile -w -s
 
 
 Example usage for running on parcellated data
@@ -95,6 +97,19 @@ def parse_args():
                       action='store_true', \
                       help="Use if you want verbose feedback while script runs.", \
                       default=False)
+    parser.add_option('-s',"--sliding_window", \
+                      dest='sliding_window', \
+                      action='store_true', \
+                      help="Use if you want to use sliding window analysis", \
+                      default=False)
+    parser.add_option('',"--window_width", \
+                      dest='window_width',\
+                      help="width of sliding window in volumes", \
+                      default=100)
+    parser.add_option('',"--step_size", \
+                      dest='step_size',\
+                      help="size of sliding window step in volumes", \
+                      default=1)
 
     (options,args) = parser.parse_args()
 
@@ -307,6 +322,31 @@ def compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose):
 
     return(result)
 
+
+def generate_filestem(outname, weighted_flag, sliding_window, threshold, niiORcsv):
+    """
+    Function to generate appropriate file stem on out name
+    """
+
+    if weighted_flag:
+        if sliding_window and (threshold is None):
+            fstem = "swdc"
+        elif sliding_window and (threshold is not None):
+            fstem = "sw%.02fdc" % threshold
+        elif not sliding_window and (threshold is None):
+            fstem = "wdc"
+        elif not sliding_window and (threshold is not None):
+            fstem = "w%.02fdc" % threshold
+    elif not weighted_flag:
+        if sliding_window:
+            fstem = "s%.02fdc" % threshold
+        elif not sliding_window:
+            fstem = "%.02fdc" % threshold
+
+    fname2save = "%s_%s%s" % (outname, fstem, niiORcsv)
+    return(fname2save)
+
+
 # function to write out degree centrality parcellated image
 def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
     """
@@ -329,8 +369,8 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
         parc_img[roimask] = result[reg_idx]
 
     # save image to disk
-    fname2save = "%s.nii.gz" % (outname)
-    nib.save(nib.Nifti1Image(parc_img, atlas.get_affine()), fname2save)
+    # fname2save = "%s.nii.gz" % (outname)
+    nib.save(nib.Nifti1Image(parc_img, atlas.get_affine()), outname)
 
 
 # function to write out degree centrality parcellated data to a csv
@@ -343,8 +383,8 @@ def save_dc_parc_csv(result, outname, regions):
     # data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
     data2use = {"region":regions, "dc":result.reshape(len(regions))}
     res_df = pd.DataFrame(data2use)
-    fname2save = "%s.csv" % (outname)
-    export_csv = res_df.to_csv(fname2save, index = None, header = True)
+    # fname2save = "%s.csv" % (outname)
+    export_csv = res_df.to_csv(outname, index = None, header = True)
 
 
 # function to write out degree centrality voxel-wise image
@@ -357,8 +397,8 @@ def save_dc_vox_img(result, imgfile, outname, verbose):
         print("Saving voxel-wise degree centrality image")
 
     img = nib.load(imgfile)
-    fname2save = "%s.nii.gz" % (outname)
-    nib.save(nib.Nifti1Image(result, img.get_affine()), fname2save)
+    # fname2save = "%s.nii.gz" % (outname)
+    nib.save(nib.Nifti1Image(result, img.get_affine()), outname)
 
 
 # main function to run the degree centrality analysis on parcellated data
@@ -377,18 +417,30 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, ver
     numtps = datadict["numtps"]
 
     # parcellate data
-    parc_data = parcellate_data(imgdata, atlasdata, numtps, regions, nregions, verbose)
+    parc_data = parcellate_data(imgdata, atlasdata, numtps, regions, nregions, \
+                                verbose)
 
     # standardize data
     parc_zdata = standardize_data(parc_data, nregions, verbose)
 
     # compute degree centrality on parcellated data
-    result = compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, verbose)
+    result = compute_dc_parc(parc_zdata, nregions, threshold, weighted_flag, \
+                             verbose)
 
     # save parcellated degree centrality image to disk
     if outname is not None:
-        save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose)
-        save_dc_parc_csv(result, outname, regions)
+        fname2save = generate_filestem(outname=outname, \
+                                       weighted_flag=weighted_flag, \
+                                       sliding_window=False, \
+                                       threshold=threshold, \
+                                       niiORcsv="_parc.nii.gz")
+        save_dc_parc_img(result, mask, atlasfile, regions, fname2save, verbose)
+        fname2save = generate_filestem(outname=outname, \
+                                       weighted_flag=weighted_flag, \
+                                       sliding_window=False, \
+                                       threshold=threshold, \
+                                       niiORcsv="_parc.csv")
+        save_dc_parc_csv(result, fname2save, regions)
 
     return(result)
 
@@ -413,13 +465,84 @@ def dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose):
 
     imgts = standardize_data(imgts, numvoxels, verbose)
 
-    result = compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_flag, verbose)
+    result = compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, \
+                            weighted_flag, verbose)
 
     # save result to disk
     if outname is not None:
-        save_dc_vox_img(result, imgfile, outname, verbose)
+        fname2save = generate_filestem(outname=outname, \
+                                    weighted_flag=weighted_flag, \
+                                    sliding_window=False, \
+                                    threshold=threshold, \
+                                    niiORcsv=".nii.gz")
+        save_dc_vox_img(result, imgfile, fname2save, verbose)
 
     return(result)
+
+
+def get_window_indices(ts_length, window_width, step_size):
+    """
+    Function to get sliding window indices
+    """
+
+    last_start = ts_length - window_width
+    window_starts = np.arange(start=0,stop=last_start+1,step=step_size)
+
+    return(window_starts)
+
+
+# main function to run degree centrality sliding-window analysis on voxel-wise data
+def dc_img_sw(imgfile, maskfile, outname, threshold, weighted_flag, verbose, \
+              window_width, step_size):
+    """
+    Main function to run all steps for sliding-window analysis on voxel-wise data
+    """
+
+    # load data
+    atlasfile = None
+    datadict = load_data(imgfile, maskfile, atlasfile, verbose)
+    imgdata = datadict["imgdata"]
+    mask = datadict["mask"]
+    numvoxels = datadict["nregions"]
+    numtps = datadict["numtps"]
+    voxsize = datadict["voxsize"]
+
+    indices = np.transpose(np.nonzero(mask))
+    imgts = imgdata[indices[:,0], indices[:,1], indices[:,2]]
+
+    # get window indices
+    ts_length = imgts.shape[1]
+    window_starts = get_window_indices(ts_length, window_width, step_size)
+
+    # pre-allocate 4d result array
+    sw_dim = list(mask.shape)
+    sw_dim.append(len(window_starts))
+    sw_dim = tuple(sw_dim)
+    sw_results = np.zeros(sw_dim)
+
+    # run loop for sliding window
+    for window in window_starts:
+        if verbose:
+            print("Window %d of %d" % (window, len(window_starts)))
+
+        start_vol = window
+        end_vol = window + window_width
+        tmp_data = imgts[:,start_vol:end_vol]
+        tmp_data = standardize_data(tmp_data,numvoxels,verbose=False)
+        result = compute_dc_img(tmp_data, mask, indices, numvoxels, numtps, \
+                                threshold, weighted_flag, verbose=False)
+        sw_results[:,:,:,window] = result
+
+    # save result to disk
+    if outname is not None:
+        fname2save = generate_filestem(outname=outname, \
+                                    weighted_flag=weighted_flag, \
+                                    sliding_window=True, \
+                                    threshold=threshold, \
+                                    niiORcsv=".nii.gz")
+        save_dc_vox_img(sw_results, imgfile, fname2save, verbose)
+
+    return(sw_results)
 
 
 # boilerplate code to call main code for executing
@@ -443,6 +566,15 @@ if __name__ == '__main__':
     # weighted flag
     weighted_flag = opts.weighted
 
+    # sliding window flag
+    sliding_window = opts.sliding_window
+
+    # window_width
+    window_width = np.array(opts.window_width, dtype = int)
+
+    # step_size
+    step_size = np.array(opts.step_size, dtype = int)
+
     # verbose flag
     verbose = opts.verbose
 
@@ -453,6 +585,16 @@ if __name__ == '__main__':
         threshold = opts.threshold
 
     if atlasfile is None:
-        result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose)
+        if sliding_window:
+            result = dc_img_sw(imgfile=imgfile, maskfile=maskfile, \
+                               outname=outname, \
+                               threshold=threshold, \
+                               weighted_flag=weighted_flag, \
+                               verbose=verbose, \
+                               window_width=window_width, \
+                               step_size=step_size)
+        else:
+            result = dc_img(imgfile, maskfile, outname, threshold, weighted_flag, verbose)
+
     elif atlasfile is not None:
         result = dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, verbose)
