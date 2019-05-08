@@ -259,6 +259,8 @@ def compute_dc_img(imgts, mask, indices, numvoxels, numtps, threshold, weighted_
                 # sum r-values for connections above threshold and then divide
                 # by number of connections above threshold
                 result[x,y,z] = (np.nansum(rvalues[voxmask]) - 1)/(np.nansum(voxmask)-1)
+                if result[x,y,z]==1:
+                    result[x,y,z] = 0
         # compute unweighted degree
         else:
             voxmask = rvalues > threshold
