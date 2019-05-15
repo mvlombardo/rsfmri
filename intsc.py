@@ -291,13 +291,18 @@ def intsc_parc(imgfile, maskfile, atlasfile, outname, nlags, tr, verbose):
     # mean center data
     parc_data_mc = mean_center(parc_data, nregions, verbose)
 
+    # pre-allocate results array
     result = np.zeros((nregions,1))
+
     # loop over regions
     for region in range(0,nregions):
         if verbose:
             print("Working on region %d of %d" % (region+1,nregions))
 
+        # grab specific region's time-series
         ts = np.array(parc_data_mc[region,:]).reshape((1,numtps))
+
+        # compute intsc
         result[region,] = compute_intsc(ts, numtps, nlags, tr)
 
     # save parcellated degree centrality image to disk
@@ -341,20 +346,28 @@ def intsc_img(imgfile, maskfile, outname, nlags, tr, verbose):
     numtps = datadict["numtps"]
     voxsize = datadict["voxsize"]
 
+    # grab indices of brain voxels within mask
     indices = np.transpose(np.nonzero(mask))
     imgts = imgdata[indices[:,0], indices[:,1], indices[:,2]]
 
+    # mean center data
     imgts = mean_center(imgts, numvoxels, verbose)
 
+    # pre-allocate results array
     result = np.zeros(mask.shape)
 
+    # loop over voxels
     for basevoxel in range(0, numvoxels):
         if verbose:
             print("Working on %d voxel of %d voxels" % (basevoxel+1,numvoxels))
 
+        #Get x,y,z coords for the voxel
         x,y,z = indices[basevoxel,:]
+
+        # grab specific voxel's time-series
         ts = np.array(imgts[basevoxel,:]).reshape((1,numtps))
 
+        # compute intsc
         result[x,y,z] = compute_intsc(ts, numtps, nlags, tr)
 
     # save result to disk
@@ -392,6 +405,7 @@ if __name__ == '__main__':
     # verbose flag
     verbose = opts.verbose
 
+    # run analysis using atlas file or not
     if atlasfile is None:
         result = intsc_img(imgfile, maskfile, outname, nlags, tr, verbose)
     elif atlasfile is not None:
