@@ -350,7 +350,7 @@ def generate_filestem(outname, weighted_flag, sliding_window, threshold, niiORcs
 
 
 # function to write out degree centrality parcellated image
-def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
+def save_dc_parc_img(result, atlasfile, regions, outname, verbose):
     """
     Save parcellated degree centrality image
     """
@@ -371,7 +371,6 @@ def save_dc_parc_img(result, mask, atlasfile, regions, outname, verbose):
         parc_img[roimask] = result[reg_idx]
 
     # save image to disk
-    # fname2save = "%s.nii.gz" % (outname)
     nib.save(nib.Nifti1Image(parc_img, atlas.get_affine()), outname)
 
 
@@ -381,11 +380,8 @@ def save_dc_parc_csv(result, outname, regions):
     Save csv for parcellated degree centrality
     """
 
-    # nreg = result.shape[0]
-    # data2use = {"region":np.arange(nreg)+1, "dc":result.reshape(nreg)}
     data2use = {"region":regions, "dc":result.reshape(len(regions))}
     res_df = pd.DataFrame(data2use)
-    # fname2save = "%s.csv" % (outname)
     export_csv = res_df.to_csv(outname, index = None, header = True)
 
 
@@ -399,7 +395,6 @@ def save_dc_vox_img(result, imgfile, outname, verbose):
         print("Saving voxel-wise degree centrality image")
 
     img = nib.load(imgfile)
-    # fname2save = "%s.nii.gz" % (outname)
     nib.save(nib.Nifti1Image(result, img.get_affine()), outname)
 
 
@@ -436,7 +431,7 @@ def dc_parc(imgfile, maskfile, atlasfile, outname, threshold, weighted_flag, ver
                                        sliding_window=False, \
                                        threshold=threshold, \
                                        niiORcsv="_parc.nii.gz")
-        save_dc_parc_img(result, mask, atlasfile, regions, fname2save, verbose)
+        save_dc_parc_img(result, atlasfile, regions, fname2save, verbose)
         fname2save = generate_filestem(outname=outname, \
                                        weighted_flag=weighted_flag, \
                                        sliding_window=False, \
