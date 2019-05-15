@@ -9,7 +9,7 @@ Example usage for running on parcellated data
 imgfile=~/data/rest_pp01.nii.gz
 maskfile=~/data/mask01.nii.gz
 atlasfile=~/data/MMP_HCP01.nii.gz
-outfile=~/data/parc_dc01
+outfile=~/data/rest_pp01
 
 python intsc.py -i $imgfile -m $maskfile -o $outname -a $atlasfile --tr 1.302 --nlags 20
 
@@ -18,7 +18,7 @@ Example usage for running on voxel-wise data
 
 imgfile=~/data/rest_pp01.nii.gz
 maskfile=~/data/mask01.nii.gz
-outfile=~/data/parc_dc01
+outfile=~/data/rest_pp01
 
 python intsc.py -i $imgfile -m $maskfile -o $outname --tr 1.302 --nlags 20
 """
