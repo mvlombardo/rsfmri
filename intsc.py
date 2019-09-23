@@ -264,7 +264,7 @@ def save_intsc_parc_csv(result, outname, regions):
     Save csv for parcellated intsc
     """
 
-    data2use = {"region":regions, "dc":result.reshape(len(regions))}
+    data2use = {"region":regions, "intsc":result.reshape(len(regions))}
     res_df = pd.DataFrame(data2use)
     export_csv = res_df.to_csv(outname, index = None, header = True)
 
