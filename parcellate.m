@@ -23,7 +23,7 @@ function result = parcellate(atlasfile, datafile, fname2save, MEANCENTER, nreg)
 %
 
 % CHANGE FOR ELEONORA TO SEE ON GITHUB
-
+% ADDED NEW LINE FOR ELEONORA
 
 %% read in parcellation
 [atlas, dims,scales,bpp,endian] = read_avw(atlasfile);
